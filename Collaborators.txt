@@ -1,0 +1,91 @@
+ElectroCraftMtrDrvInterface; Relative Class Collaborators
+
+
+# namespace ECFundies  // This is working code.
+
+
+ECSerialPort // Wraps the SerialPort class for ElectroCraft use; handles all protocol issues.
+    ECMsg // The ElectroCraft message xmit'd/rcv'd.
+        DaK
+        
+        DaK // Data key uniquely identifies motor/drive data.
+            ECAxis // Target motor/drive axis.
+            ECGroup // Sometimes the group is used.
+            ECItem // The particular data item in memory; usually a memory address.
+                                                
+DaIAdaptBase // Binds a data key and a data item with property access adapter.
+    Dak
+    DaIBase
+
+    DaIBase // Data item "actually mirrors data in the motor/drive"
+        AbstDaI
+        DaK // Keys the motor/drive data.
+    
+SubDaIAdaptBase // Binds a sub data item and data item with property access adapter.
+    "string"  // key for this SubDaIBase
+    SubDaIBase
+    DaIBase  // for this SubDaIBase
+    
+    SubDaIBase // Sub data item "operates on sub-data supplied by another object" 
+        AbstDaI
+        "string" // Keys the sub-data on this motor/drive data supplied by another object.
+
+        AbstDaI // Enforces common signatures; stores convertors.
+            DICnvtrBase
+
+        DICv_YourCustomConvertorsHere
+            DICnvtrBase // Enforces common operations by convertors.
+ 
+MBAdaptBase // Binds a data key (specifically ECItem)  and message builder together with factory operations
+    DaK
+    ECMBBase
+    
+ECMB_YourCustomBuildersHere
+    ECMBBase
+    
+    ECMBBase // Enforces common signatures and operations to build ECMsg-s.
+        ECItem // Is really the memory address in most cases.
+            
+ECMsgList // If you got ECMsgs, eventually you're gonna list and iterate.
+    ECMsg
+DaKList // If you got DaKs, eventually you're gonna list and iterate.
+    DaK
+
+// ECSerialPort does not handle comm timeout and error.
+// That's up to you to detect and recover.
+// But these help track and detect, per ElectroCraft's specs.
+    ECTimeoutHandler // Singleton you populate for each axis on which you may have timeouts;
+        // Then have it scan every ECMsg for a result and action.
+        ECTimeout // The actual timeout state machine.
+           ECAxis
+    
+ECMisc // Kind of a junk pile.
+ECCvStatHlprs // There's no good way to convert ElectroCraft status replies.
+Msger // To pick apart data in ECMsg byte streams
+PropStd // Enforces some standard name suffixes on properties
+StringORama // Obvious, maybe?
+
+
+# namespace ECPutItTogether  // This is NOT working code, but examples from working code.
+
+
+ECAxises // A template to define your app's axises.
+ECGroups // Another template, for axis groups.
+ECItems // Here list all your items and there addresses
+
+DaKs // Key to things: Ties together group, axis, data item, and sub data items.
+
+DaIDataModel // Singleton storing all your app's data items; one to one with a DaK.
+    DaIAdapter // Exists to bind the singleton to...
+        ECFundies.DaIAdaptBase
+
+SubDaIDataModel // Singleton with all your app's sub data items, referenced back to DaIDataModel by a DaKs entry.
+    SubDaIAdapter // Exists to bind the singleton to...
+        ECFundies.SubDaIAdaptBase
+
+MBDataModel // Singleton with all your app's messages; one to one with every DaK.
+    MBAdapter // Exists to bind the singleton to...
+        ECFundies.MBAdaptBase
+
+
+-30-
